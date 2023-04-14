@@ -40,3 +40,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# foundry
+cache/
+
+deployTestnet.sh
+deployTestnet2.sh
