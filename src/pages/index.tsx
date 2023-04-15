@@ -1,18 +1,32 @@
+import { ethers } from "ethers";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useId } from "react";
+import NoSSR from "react-no-ssr";
 import { useAccount, useContractRead } from "wagmi";
-import { marketAbi, marketAddress } from "~/contracts/NFT";
+import ERC721Card from "~/components/ui-blocks/ERC721Card";
+import MarketPlaceNFT from "~/components/ui-blocks/MarketplaceNFT";
+import { marketAbi, marketAddress, nftAbi, nftAddress } from "~/contracts/NFT";
 
 const Home: NextPage = () => {
   const account = useAccount();
 
-  const myNFTs = useContractRead({
+  const id = useId();
+  const id2 = useId();
+
+  const myMarketplaceNFTs = useContractRead({
     abi: marketAbi,
     address: marketAddress,
     functionName: "fetchMyNFTs",
+  });
+
+  const balanceOf = useContractRead({
+    abi: nftAbi,
+    address: nftAddress,
+    functionName: "balanceOf",
     // @ts-ignore
-    args: [],
+    args: [account.address],
   });
 
   return (
@@ -23,31 +37,38 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="">
-        <div className="prose flex w-full flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1>My Overview</h1>
-          {account.status === "disconnected" && <div>Not connected...</div>}
-          {account.status === "connected" && (
-            <div>
-              {myNFTs.error && <div>{myNFTs.error.message}</div>}
-              {myNFTs.data?.length === 0 && <div>You have no NFTs yet.</div>}
-              {(myNFTs.data?.length || 0) > 0 && (
-                <div>
-                  <h2>My NFTs</h2>
-                  <div className="flex flex-col gap-4">
-                    {myNFTs.data?.map((nft) => (
-                      <div className="flex flex-col gap-2">
-                        <span>{nft.itemId.toNumber()}</span>
-                        <span>{nft.nftContract}</span>
-                        <span>{nft.owner}</span>
-                        <span>{nft.price.toNumber()}</span>
-                      </div>
-                    ))}
+        <NoSSR>
+          <div className="flex w-full flex-col gap-12 px-4 py-16">
+            <h1>My Overview</h1>
+            {account.status === "disconnected" && <div>Not connected...</div>}
+            {account.status === "connected" && (
+              <div className="grid grid-cols-2 gap-4">
+                {balanceOf.data && (
+                  <div>
+                    <h2>My NFTs</h2>
+                    <div className="">
+                      Owned ERC721 Tokens: {balanceOf.data.toNumber()}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                )}
+                {myMarketplaceNFTs.error && (
+                  <div>{myMarketplaceNFTs.error.message}</div>
+                )}
+                {myMarketplaceNFTs.data?.length === 0 && (
+                  <div>You have no NFTs on the marketplace yet.</div>
+                )}
+                {(myMarketplaceNFTs.data?.length || 0) > 0 && (
+                  <div>
+                    <h2>My Marketplace NFTs</h2>
+                    <div className="flex flex-col gap-4">
+                      {myMarketplaceNFTs.data?.length}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </NoSSR>
       </main>
     </>
   );

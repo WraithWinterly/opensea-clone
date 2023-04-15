@@ -1,0 +1,1 @@
+forge create NFT --contracts ./src/contracts/NFT.sol --private-key PRIVATE_KEY --rpc-url https://arb-goerli.g.alchemy.com/v2/api_key --constructor-args "erc721_address_dont_remove_quotes"

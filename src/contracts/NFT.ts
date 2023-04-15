@@ -1,5 +1,5 @@
-export const nftAddress = "0x4273a18e02142d9837d3Cd220Fc362E4bc279C9f";
-export const marketAddress = "0x4b4eD9d6ca005BCB6c662B7693908b5a436521E7";
+export const nftAddress = "0x1FA65C5ACd80E4388561D5112b11fEC5A4fDc13c";
+export const marketAddress = "0xFFbc4B0803700446cE1FEf58C5381789A78BEc59";
 
 export const nftAbi = [
   {
@@ -129,7 +129,7 @@ export const nftAbi = [
     inputs: [
       {
         internalType: "string",
-        name: "tokenURI",
+        name: "_tokenURI",
         type: "string",
       },
     ],
@@ -383,6 +383,25 @@ export const nftAbi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_tokenURI",
+        type: "string",
+      },
+    ],
+    name: "tokenURIExists",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "totalSupply",
     outputs: [
@@ -421,11 +440,6 @@ export const nftAbi = [
 ] as const;
 
 export const marketAbi = [
-  {
-    inputs: [],
-    stateMutability: "payable",
-    type: "constructor",
-  },
   {
     anonymous: false,
     inputs: [
@@ -473,6 +487,25 @@ export const marketAbi = [
       },
     ],
     name: "MarketItemCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
     type: "event",
   },
   {
@@ -680,6 +713,26 @@ export const marketAbi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -697,5 +750,22 @@ export const marketAbi = [
     ],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ] as const;

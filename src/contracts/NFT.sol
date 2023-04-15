@@ -6,33 +6,35 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-// 732
 contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage {
-    //auto-increment field for each token
+    // Auto-increment field for each token
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
 
-    //address of the NFT market place
+    // Address of the NFT marketplace
     address contractAddress;
+
+    // Prevent duplicate tokenURIs on this contract
+    mapping(string => bool) private _usedTokenURIs;
 
     constructor(address marketplaceAddress) ERC721("OpenSeal", "openseal") {
         contractAddress = marketplaceAddress;
     }
 
-    /// @notice create a new token
-    /// @param tokenURI : token URI
-    function createToken(string memory tokenURI) public returns (uint) {
-        //set a new token id for the token to be minted
+    /// @param _tokenURI : token URI
+    function createToken(string memory _tokenURI) public returns (uint) {
+        require(!tokenURIExists(_tokenURI), "Token URI already exists");
+        // Set a new token id for the token to be minted
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
 
-        _mint(msg.sender, newItemId); //mint the token
-        _setTokenURI(newItemId, tokenURI); //generate the URI
-        setApprovalForAll(contractAddress, true); //grant transaction permission to marketplace
+        _mint(msg.sender, newItemId); // Mint the token
+        _setTokenURI(newItemId, _tokenURI); // Generate the URI
+        _usedTokenURIs[_tokenURI] = true;
+        setApprovalForAll(contractAddress, true); // Grant transaction permission to marketplace
 
-        //return token ID
         return newItemId;
     }
 
@@ -61,5 +63,11 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage {
         bytes4 interfaceId
     ) public view override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function tokenURIExists(
+        string memory _tokenURI
+    ) public view returns (bool) {
+        return _usedTokenURIs[_tokenURI] == true;
     }
 }

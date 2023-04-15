@@ -44,5 +44,5 @@ yarn-error.log*
 # foundry
 cache/
 
-deployTestnet.sh
-deployTestnet2.sh
+deployMarketplace.sh
+deployERC721.sh

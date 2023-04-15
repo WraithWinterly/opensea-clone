@@ -3,37 +3,36 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-//prevents re-entrancy attacks
+import "@openzeppelin/contracts/access/Ownable.sol";
+// Prevents re-entrancy attacks
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "forge-std/console.sol";
 
-contract NFTMarketplace is ReentrancyGuard {
+contract NFTMarketplace is ReentrancyGuard, Ownable {
     using Counters for Counters.Counter;
-    Counters.Counter private _itemIds; //total number of items ever created
-    Counters.Counter private _itemsSold; //total number of items sold
 
-    address payable owner; //owner of the smart contract
-    //people have to pay to puy their NFT on this marketplace
+    // Total number of items ever created
+    Counters.Counter private _itemIds;
+    // Total number of items sold
+    Counters.Counter private _itemsSold;
+
+    // People have to pay to add their NFT on this marketplace
     uint256 listingPrice = 0.025 ether;
-
-    constructor() payable {
-        owner = payable(msg.sender);
-    }
 
     struct MarketItem {
         uint itemId;
         address nftContract;
         uint256 tokenId;
-        address payable seller; //person selling the nft
-        address payable owner; //owner of the nft
+        // Person selling the NFT
+        address payable seller;
+        address payable owner;
         uint256 price;
         bool sold;
     }
 
-    //a way to access values of the MarketItem struct above by passing an integer ID
+    // way to access values of the MarketItem struct above by passing an integer ID
     mapping(uint256 => MarketItem) private idMarketItem;
 
-    //log message (when Item is sold)
+    // Log message when item is sold
     event MarketItemCreated(
         uint indexed itemId,
         address indexed nftContract,
@@ -44,19 +43,18 @@ contract NFTMarketplace is ReentrancyGuard {
         bool sold
     );
 
-    /// @notice function to get listingprice
     function getListingPrice() public view returns (uint256) {
         return listingPrice;
     }
 
-    function setListingPrice(uint _price) public returns (uint) {
-        if (msg.sender == address(this)) {
-            listingPrice = _price;
-        }
+    /// @param _price : new listing price
+    /// @return listingPrice : new listing price
+    function setListingPrice(uint _price) public onlyOwner returns (uint) {
+        listingPrice = _price;
         return listingPrice;
     }
 
-    /// @notice function to create market item
+    /// @notice function to list an ERC721 on the marketplace
     function createMarketItem(
         address nftContract,
         uint256 tokenId,
@@ -67,7 +65,7 @@ contract NFTMarketplace is ReentrancyGuard {
             msg.value == listingPrice,
             "Price must be equal to listing price"
         );
-        console.log(address(this).balance);
+
         _itemIds.increment(); //add 1 to the total number of items ever created
         uint256 itemId = _itemIds.current();
 
@@ -75,16 +73,16 @@ contract NFTMarketplace is ReentrancyGuard {
             itemId,
             nftContract,
             tokenId,
-            payable(msg.sender), //address of the seller putting the nft up for sale
-            payable(address(0)), //no owner yet (set owner to empty address)
+            payable(msg.sender), // Address of the seller putting the nft up for sale
+            payable(address(0)), // No owner yet (set owner to empty address)
             price,
             false
         );
 
-        //transfer ownership of the nft to the contract itself
+        // Transfer ownership of the nft to the contract itself
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
-        //log this transaction
+        // Log this transaction
         emit MarketItemCreated(
             itemId,
             nftContract,
@@ -96,7 +94,9 @@ contract NFTMarketplace is ReentrancyGuard {
         );
     }
 
-    /// @notice function to create a sale
+    receive() external payable {}
+
+    /// @notice function to buy an ERC721 on the marketplace
     function createMarketSale(
         address nftContract,
         uint256 itemId
@@ -109,64 +109,65 @@ contract NFTMarketplace is ReentrancyGuard {
             "Please submit the asking price in order to complete purchase"
         );
 
-        //pay the seller the amount
+        // Pay the seller the amount
         address payable seller = idMarketItem[itemId].seller;
-        console.log(address(this).balance);
+
         (bool sent, ) = seller.call{value: msg.value}("");
-        if (sent == false) {
-            assembly {
-                let ptr := mload(0x40)
-                let size := returndatasize()
-                returndatacopy(ptr, 0, size)
-                revert(ptr, size)
-            }
-        }
-        //transfer ownership of the nft from the contract itself to the buyer
+        require(sent, "Failed to send Ether");
+
+        // Transfer ownership of the nft from the contract itself to the buyer
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
 
-        idMarketItem[itemId].owner = payable(msg.sender); //mark buyer as new owner
-        idMarketItem[itemId].sold = true; //mark that it has been sold
-        _itemsSold.increment(); //increment the total number of Items sold by 1
-        // payable(owner).transfer(listingPrice); //pay owner of contract the listing price
+        // Mark buyer as new owner
+        idMarketItem[itemId].owner = payable(msg.sender);
+
+        // Mark that it has been sold
+        idMarketItem[itemId].sold = true;
+
+        //Increment the total number of Items sold by 1
+        _itemsSold.increment();
+
+        (sent, ) = owner().call{value: listingPrice}("");
+        require(sent, "Failed to send Ether");
     }
 
-    /// @notice total number of items unsold on our platform
+    /// @notice Total number of items unsold on our platform
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint itemCount = _itemIds.current(); //total number of items ever created
-        //total number of items that are unsold = total items ever created - total items ever sold
+        // Total number of items that are unsold = total items ever created - total items ever sold
         uint unsoldItemCount = _itemIds.current() - _itemsSold.current();
         uint currentIndex = 0;
 
         MarketItem[] memory items = new MarketItem[](unsoldItemCount);
 
-        //loop through all items ever created
+        // Loop through all items ever created
         for (uint i = 0; i < itemCount; i++) {
-            //get only unsold item
-            //check if the item has not been sold
-            //by checking if the owner field is empty
+            // Get only unsold items
+            // Check if the item has not been sold by checking if the owner field is empty
             if (idMarketItem[i + 1].owner == address(0)) {
-                //yes, this item has never been sold
+                // Yes, this item has never been sold
                 uint currentId = idMarketItem[i + 1].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
             }
         }
-        return items; //return array of all unsold items
+        // Array of all unsold items
+        return items;
     }
 
     /// @notice fetch list of NFTS owned/bought by this user
     function fetchMyNFTs() public view returns (MarketItem[] memory) {
-        //get total number of items ever created
+        // Get total number of items ever created
         uint totalItemCount = _itemIds.current();
 
         uint itemCount = 0;
         uint currentIndex = 0;
 
         for (uint i = 0; i < totalItemCount; i++) {
-            //get only the items that this user has bought/is the owner
+            // Get only the items that this user has bought/is the owner
             if (idMarketItem[i + 1].owner == msg.sender) {
-                itemCount += 1; //total length
+                itemCount += 1; // Total length
             }
         }
 
@@ -184,16 +185,16 @@ contract NFTMarketplace is ReentrancyGuard {
 
     /// @notice fetch list of NFTS owned/bought by this user
     function fetchItemsCreated() public view returns (MarketItem[] memory) {
-        //get total number of items ever created
+        // Get total number of items ever created
         uint totalItemCount = _itemIds.current();
 
         uint itemCount = 0;
         uint currentIndex = 0;
 
         for (uint i = 0; i < totalItemCount; i++) {
-            //get only the items that this user has bought/is the owner
+            // Get only the items that this user has bought/is the owner
             if (idMarketItem[i + 1].seller == msg.sender) {
-                itemCount += 1; //total length
+                itemCount += 1; // Total length
             }
         }
 
