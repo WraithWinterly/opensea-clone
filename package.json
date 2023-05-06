@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.14",
     "@rainbow-me/rainbowkit": "^0.12.7",
     "@tailwindcss/typography": "^0.5.9",
     "daisyui": "^2.51.5",
