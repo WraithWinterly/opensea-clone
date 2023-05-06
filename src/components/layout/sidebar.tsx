@@ -13,6 +13,9 @@ export default function Sidebar() {
         <Link href="/mint">
           <button className="btn w-full">Mint Collectable</button>
         </Link>
+        <Link href="/sell">
+          <button className="btn w-full">Sell Collectable</button>
+        </Link>
         <Link href="/browse">
           <button className="btn w-full">Browse</button>
         </Link>

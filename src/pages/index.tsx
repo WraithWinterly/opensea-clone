@@ -1,19 +1,12 @@
-import { ethers } from "ethers";
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useId } from "react";
 import NoSSR from "react-no-ssr";
 import { useAccount, useContractRead } from "wagmi";
-import ERC721Card from "~/components/ui-blocks/ERC721Card";
-import MarketPlaceNFT from "~/components/ui-blocks/MarketplaceNFT";
 import { marketAbi, marketAddress, nftAbi, nftAddress } from "~/contracts/NFT";
 
 const Home: NextPage = () => {
   const account = useAccount();
-
-  const id = useId();
-  const id2 = useId();
 
   const myMarketplaceNFTs = useContractRead({
     abi: marketAbi,
@@ -25,7 +18,7 @@ const Home: NextPage = () => {
     abi: nftAbi,
     address: nftAddress,
     functionName: "balanceOf",
-    // @ts-ignore
+    // @ts-expect-error wagmi address type
     args: [account.address],
   });
 

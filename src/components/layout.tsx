@@ -1,8 +1,12 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import Header from "./layout/header";
 import Sidebar from "./layout/sidebar";
+import { useRouter } from "next/router";
 
 export default function Layout({ children }: { children: ReactNode }) {
+  const pathname = useRouter().pathname;
+
+  if (pathname === "/logo") return <>{children}</>;
   return (
     <>
       <Sidebar />

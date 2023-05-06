@@ -1,5 +1,7 @@
+import { useId } from "react";
+import NoSSR from "react-no-ssr";
 import { useContractRead } from "wagmi";
-import MarketPlaceNFT from "~/components/ui-blocks/MarketplaceNFT";
+import MarketPlaceNFT, { NFT } from "~/components/ui-blocks/MarketplaceNFT";
 import { marketAbi, marketAddress } from "~/contracts/NFT";
 
 export default function Browse() {
@@ -8,13 +10,19 @@ export default function Browse() {
     address: marketAddress,
     functionName: "fetchMarketItems",
   });
+  const id = useId();
 
   return (
     <div>
       <h1>Browse Marketplace</h1>
-      {marketItems.data?.map((item: any) => (
-        <MarketPlaceNFT key={item.id} nft={item} />
-      ))}
+      <NoSSR>
+        {marketItems.data?.map((item: NFT, i) => (
+          <MarketPlaceNFT
+            key={`${item.itemId.toString()}-${id}-${i}`}
+            nft={item}
+          />
+        ))}
+      </NoSSR>
     </div>
   );
 }

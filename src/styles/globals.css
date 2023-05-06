@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  height: 100vh;
+}
+
 @layer components {
   h1 {
     @apply py-4 text-4xl font-bold;

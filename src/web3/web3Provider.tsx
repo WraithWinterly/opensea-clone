@@ -3,7 +3,7 @@ import {
   midnightTheme,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { arbitrumGoerli } from "wagmi/chains";

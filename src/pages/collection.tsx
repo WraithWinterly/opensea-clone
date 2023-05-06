@@ -21,7 +21,7 @@ export default function Collection() {
     abi: nftAbi,
     address: nftAddress,
     functionName: "balanceOf",
-    // @ts-ignore
+    // @ts-expect-error wagmi address type
     args: [account.address],
   });
 

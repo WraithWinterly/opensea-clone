@@ -1,25 +1,26 @@
 import { ethers } from "ethers";
+import Image from "next/image";
+import Link from "next/link";
 import { useContractRead } from "wagmi";
 import { nftAbi, nftAddress } from "~/contracts/NFT";
+import { getImageFromTokenURI } from "~/utils/web3utils";
 
-export default function MarketPlaceNFT({
-  nft,
-}: {
-  nft: {
-    itemId: ethers.BigNumber;
-    nftContract: `0x${string}`;
-    tokenId: ethers.BigNumber;
-    seller: `0x${string}`;
-    owner: `0x${string}`;
-    price: ethers.BigNumber;
-    sold: boolean;
-  };
-}) {
+export interface NFT {
+  itemId: ethers.BigNumber;
+  nftContract: `0x${string}`;
+  tokenId: ethers.BigNumber;
+  seller: `0x${string}`;
+  owner: `0x${string}`;
+  price: ethers.BigNumber;
+  sold: boolean;
+}
+
+export default function MarketPlaceNFT({ nft }: { nft: NFT }) {
   const tokenURI = useContractRead({
     abi: nftAbi,
     address: nftAddress,
     functionName: "tokenURI",
-    // @ts-ignore
+    // @ts-expect-error wagmi bignumber
     args: [nft.tokenId.toNumber()],
   });
   return (
@@ -27,9 +28,11 @@ export default function MarketPlaceNFT({
       <div className="flex w-full justify-between">
         {!!tokenURI.data && (
           <img
-            src={`https://cloudflare-ipfs.com/ipfs/${tokenURI.data.toString()}`}
+            src={getImageFromTokenURI(tokenURI.data.toString())}
             alt="Shoes"
             className="h-48 w-48 rounded-xl rounded-bl-none rounded-tr-none"
+            width={48}
+            height={48}
           />
         )}
         <div className="flex flex-col items-end">
@@ -44,7 +47,14 @@ export default function MarketPlaceNFT({
         </p>
         <p className="break-all">Seller: {nft.seller}</p>
         <div className="flex justify-end">
-          <button className="btn-primary btn">View</button>
+          {!!nft.tokenId && (
+            <Link
+              href={`/view/${nft.tokenId.toString()}`}
+              className="btn-primary btn"
+            >
+              View
+            </Link>
+          )}
         </div>
       </div>
     </div>
