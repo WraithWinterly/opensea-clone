@@ -151,9 +151,9 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
         for (uint i = 0; i < itemCount; i++) {
             // Get only unsold items
             // Check if the item has not been sold by checking if the owner field is empty
-            if (idMarketItem[i + 1].owner == address(0)) {
+            if (idMarketItem[i].owner == address(0)) {
                 // Yes, this item has never been sold
-                uint currentId = idMarketItem[i + 1].itemId;
+                uint currentId = idMarketItem[i].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -173,15 +173,15 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
 
         for (uint i = 0; i < totalItemCount; i++) {
             // Get only the items that this user has bought/is the owner
-            if (idMarketItem[i + 1].owner == msg.sender) {
+            if (idMarketItem[i].owner == msg.sender) {
                 itemCount += 1; // Total length
             }
         }
 
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint i = 0; i < totalItemCount; i++) {
-            if (idMarketItem[i + 1].owner == msg.sender) {
-                uint currentId = idMarketItem[i + 1].itemId;
+            if (idMarketItem[i].owner == msg.sender) {
+                uint currentId = idMarketItem[i].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -200,15 +200,15 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
 
         for (uint i = 0; i < totalItemCount; i++) {
             // Get only the items that this user has bought/is the owner
-            if (idMarketItem[i + 1].seller == msg.sender) {
+            if (idMarketItem[i].seller == msg.sender) {
                 itemCount += 1; // Total length
             }
         }
 
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint i = 0; i < totalItemCount; i++) {
-            if (idMarketItem[i + 1].seller == msg.sender) {
-                uint currentId = idMarketItem[i + 1].itemId;
+            if (idMarketItem[i].seller == msg.sender) {
+                uint currentId = idMarketItem[i].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;

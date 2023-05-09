@@ -80,7 +80,7 @@ export default function Sell() {
        */}
       <NoSSR>
         {account.status === "connected" && (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-4">
             {balanceOf.data &&
               Array.from(Array(balanceOf.data.toNumber()).keys()).map((i) => (
                 <ERC721Card
