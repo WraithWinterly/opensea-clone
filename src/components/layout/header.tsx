@@ -13,11 +13,8 @@ export default function Header() {
 
   return (
     <>
-      <div className="fixed left-0 right-0 z-10 flex h-20 w-full flex-col bg-gray-800 pt-1">
-        <span className="mx-auto text-center text-yellow-500">
-          Openseal is currently in development and is not feature complete.
-        </span>
-        <div className="relative z-10 flex w-full items-center bg-gray-800 px-4">
+      <div className="fixed left-0 right-0 z-10 flex h-20 w-full flex-col bg-base-200 pt-1">
+        <div className="relative z-10 flex w-full items-center bg-base-200 px-4">
           <Link href="/">
             <button className="flex gap-2 text-3xl font-bold text-white transition-transform duration-300 hover:scale-105">
               <GiJugglingSeal size={36} className="mb-2 self-center" />
@@ -49,6 +46,9 @@ export default function Header() {
             </NoSSR>
           </div>
         </div>
+        <span className="mx-auto w-full bg-base-100 text-center text-yellow-500">
+          Openseal is currently in development and is not feature complete.
+        </span>
       </div>
     </>
   );
