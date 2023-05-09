@@ -69,15 +69,18 @@ contract NFTTest is DSTest, Test {
         vm.startPrank(sellerAddress);
         market.createMarketItem{value: listingPrice}(
             address(nft),
-            1,
+            0,
             auctionPrice
         );
         market.createMarketItem{value: listingPrice}(
             address(nft),
-            2,
+            1,
             auctionPrice
         );
         vm.stopPrank();
+
+        assertEq(market.fetchMarketItemById(0).seller, sellerAddress);
+        assertEq(market.fetchMarketItemById(1).seller, sellerAddress);
 
         vm.startPrank(buyerAddress);
         market.createMarketSale{value: auctionPrice}(address(nft), 1);

@@ -66,8 +66,12 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
             "Price must be equal to listing price"
         );
 
-        _itemIds.increment(); //add 1 to the total number of items ever created
+        // Transfer ownership of the nft to the contract itself
+        // If this works, we can move on with the marketplace
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+
         uint256 itemId = _itemIds.current();
+        _itemIds.increment(); //add 1 to the total number of items ever created
 
         idMarketItem[itemId] = MarketItem(
             itemId,
@@ -78,9 +82,6 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
             price,
             false
         );
-
-        // Transfer ownership of the nft to the contract itself
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
         // Log this transaction
         emit MarketItemCreated(
@@ -129,6 +130,12 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
 
         (sent, ) = owner().call{value: listingPrice}("");
         require(sent, "Failed to send Ether");
+    }
+
+    function fetchMarketItemById(
+        uint256 itemId
+    ) public view returns (MarketItem memory) {
+        return idMarketItem[itemId];
     }
 
     /// @notice Total number of items unsold on our platform
