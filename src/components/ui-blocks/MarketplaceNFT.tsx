@@ -24,8 +24,17 @@ export default function MarketPlaceNFT({ nft }: { nft: NFT }) {
     args: [nft.tokenId.toNumber()],
   });
   return (
-    <div className="flex w-full max-w-md flex-col items-start gap-4 rounded-xl bg-base-100 pb-8 pr-8 shadow-xl">
+    <div
+      className={`relative flex w-full max-w-md flex-col items-start gap-4 rounded-xl bg-base-100 pb-8 pr-8 shadow-xl ${
+        !!nft.sold ? "opacity-50" : ""
+      }`}
+    >
       <div className="flex w-full justify-between">
+        {!!nft.sold && (
+          <div className="absolute bottom-0 left-0 right-0 top-0 flex h-full w-full items-center justify-center rounded-xl bg-black bg-opacity-50">
+            <h1 className="text-2xl text-white">SOLD</h1>
+          </div>
+        )}
         {!!tokenURI.data && (
           <img
             src={getImageFromTokenURI(tokenURI.data.toString())}
@@ -46,10 +55,12 @@ export default function MarketPlaceNFT({ nft }: { nft: NFT }) {
           Price: {ethers.utils.formatEther(nft.price)} ETH
         </p>
         <p className="break-all">Seller: {nft.seller}</p>
+        <p>Sold: {nft.sold ? "Yes" : "No"}</p>
+        {nft.sold && <p>Sold to: {nft.owner}</p>}
         <div className="flex justify-end">
           {!!nft.tokenId && (
             <Link
-              href={`/view/${nft.tokenId.toString()}`}
+              href={`/view/${nft.itemId.toString()}`}
               className="btn-primary btn"
             >
               View

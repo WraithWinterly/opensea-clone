@@ -16,6 +16,7 @@ export default function Collection() {
     address: marketAddress,
     functionName: "fetchMyNFTs",
   });
+  // console.log(myMarketplaceNFTs.data[0]);
 
   const balanceOf = useContractRead({
     abi: nftAbi,
@@ -45,8 +46,8 @@ export default function Collection() {
               <div>You have no ERC721s. </div>
             )}
             {balanceOf.data && (
-              <div>
-                <div className="">
+              <div className="">
+                <div className="flex flex-col gap-4">
                   {Array.from(Array(balanceOf.data.toNumber()).keys()).map(
                     (i) => (
                       <ERC721Card

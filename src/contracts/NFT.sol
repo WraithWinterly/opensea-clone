@@ -25,10 +25,10 @@ contract NFT is ERC721, ERC721Enumerable, ERC721URIStorage {
     /// @param _tokenURI : token URI
     function createToken(string memory _tokenURI) public returns (uint) {
         require(!tokenURIExists(_tokenURI), "Token URI already exists");
-        // Set a new token id for the token to be minted
-        _tokenIds.increment();
 
+        // Set a new token id for the token to be minted
         uint256 newItemId = _tokenIds.current();
+        _tokenIds.increment();
 
         _mint(msg.sender, newItemId); // Mint the token
         _setTokenURI(newItemId, _tokenURI); // Generate the URI

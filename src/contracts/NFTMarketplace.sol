@@ -66,8 +66,12 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
             "Price must be equal to listing price"
         );
 
-        _itemIds.increment(); //add 1 to the total number of items ever created
+        // Transfer ownership of the nft to the contract itself
+        // If this works, we can move on with the marketplace
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+
         uint256 itemId = _itemIds.current();
+        _itemIds.increment(); //add 1 to the total number of items ever created
 
         idMarketItem[itemId] = MarketItem(
             itemId,
@@ -78,9 +82,6 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
             price,
             false
         );
-
-        // Transfer ownership of the nft to the contract itself
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
         // Log this transaction
         emit MarketItemCreated(
@@ -131,6 +132,12 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
         require(sent, "Failed to send Ether");
     }
 
+    function fetchMarketItemById(
+        uint256 itemId
+    ) public view returns (MarketItem memory) {
+        return idMarketItem[itemId];
+    }
+
     /// @notice Total number of items unsold on our platform
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint itemCount = _itemIds.current(); //total number of items ever created
@@ -144,9 +151,9 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
         for (uint i = 0; i < itemCount; i++) {
             // Get only unsold items
             // Check if the item has not been sold by checking if the owner field is empty
-            if (idMarketItem[i + 1].owner == address(0)) {
+            if (idMarketItem[i].owner == address(0)) {
                 // Yes, this item has never been sold
-                uint currentId = idMarketItem[i + 1].itemId;
+                uint currentId = idMarketItem[i].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -166,15 +173,15 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
 
         for (uint i = 0; i < totalItemCount; i++) {
             // Get only the items that this user has bought/is the owner
-            if (idMarketItem[i + 1].owner == msg.sender) {
+            if (idMarketItem[i].owner == msg.sender) {
                 itemCount += 1; // Total length
             }
         }
 
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint i = 0; i < totalItemCount; i++) {
-            if (idMarketItem[i + 1].owner == msg.sender) {
-                uint currentId = idMarketItem[i + 1].itemId;
+            if (idMarketItem[i].owner == msg.sender) {
+                uint currentId = idMarketItem[i].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -193,15 +200,15 @@ contract NFTMarketplace is ReentrancyGuard, Ownable {
 
         for (uint i = 0; i < totalItemCount; i++) {
             // Get only the items that this user has bought/is the owner
-            if (idMarketItem[i + 1].seller == msg.sender) {
+            if (idMarketItem[i].seller == msg.sender) {
                 itemCount += 1; // Total length
             }
         }
 
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint i = 0; i < totalItemCount; i++) {
-            if (idMarketItem[i + 1].seller == msg.sender) {
-                uint currentId = idMarketItem[i + 1].itemId;
+            if (idMarketItem[i].seller == msg.sender) {
+                uint currentId = idMarketItem[i].itemId;
                 MarketItem storage currentItem = idMarketItem[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;

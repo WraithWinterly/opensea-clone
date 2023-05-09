@@ -11,7 +11,7 @@ export default function Browse() {
     functionName: "fetchMarketItems",
   });
   const id = useId();
-
+  console.log(marketItems.data);
   return (
     <div>
       <h1>Browse Marketplace</h1>
@@ -19,7 +19,7 @@ export default function Browse() {
         {marketItems.data?.map((item: NFT, i) => (
           <MarketPlaceNFT
             key={`${item.itemId.toString()}-${id}-${i}`}
-            nft={item}
+            nft={{ ...item, sold: item.sold.toString() == "true" }}
           />
         ))}
       </NoSSR>

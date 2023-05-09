@@ -63,10 +63,12 @@ export default function ERC721Card({
           ) : (
             !!token.data && (
               <Link
-                href={`/view/${token.data.toString()}`}
+                href={getImageFromTokenURI(tokenURI.data!.toString())}
                 className="btn-primary btn"
+                target="_blank"
+                rel="noreferrer noopener"
               >
-                View
+                View Image
               </Link>
             )
           )}

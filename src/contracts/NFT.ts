@@ -1,5 +1,5 @@
-export const nftAddress = "0x1FA65C5ACd80E4388561D5112b11fEC5A4fDc13c";
-export const marketAddress = "0xFFbc4B0803700446cE1FEf58C5381789A78BEc59";
+export const nftAddress = "0xceb9b3f2E4FCF5b2c4eea819940Ff6C2dC3Ee853";
+export const marketAddress = "0xD13747702087535554A5a98EA1e0c045daF0edeA";
 
 export const nftAbi = [
   {
@@ -594,6 +594,62 @@ export const marketAbi = [
         internalType: "struct NFTMarketplace.MarketItem[]",
         name: "",
         type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "itemId",
+        type: "uint256",
+      },
+    ],
+    name: "fetchMarketItemById",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "itemId",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "nftContract",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "tokenId",
+            type: "uint256",
+          },
+          {
+            internalType: "address payable",
+            name: "seller",
+            type: "address",
+          },
+          {
+            internalType: "address payable",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "price",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "sold",
+            type: "bool",
+          },
+        ],
+        internalType: "struct NFTMarketplace.MarketItem",
+        name: "",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
